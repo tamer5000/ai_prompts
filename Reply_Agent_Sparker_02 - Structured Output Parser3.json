@@ -8,7 +8,24 @@
     "image_urls": {
       "type": "array",
       "items": { "type": "string" }
+    },
+    "order_data": {
+      "type": "object",
+      "properties": {
+        "size": { "type": "string" },
+        "color": { "type": "string" },
+        "address": { "type": "string" },
+        "mobile": { "type": "string" }
+      },
+      "required": ["size", "color", "address", "mobile"]
     }
   },
-  "required": ["intent", "reply", "stage", "send_images", "image_urls"]
+  "required": [
+    "intent",
+    "reply",
+    "stage",
+    "send_images",
+    "image_urls",
+    "order_data"
+  ]
 }
