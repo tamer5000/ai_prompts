@@ -3,7 +3,12 @@
   "properties": {
     "intent": { "type": "string" },
     "reply": { "type": "string" },
-    "stage": { "type": "string" }
+    "stage": { "type": "string" },
+    "send_images": { "type": "boolean" },
+    "image_urls": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
   },
-  "required": ["intent", "reply", "stage"]
+  "required": ["intent", "reply", "stage", "send_images", "image_urls"]
 }
