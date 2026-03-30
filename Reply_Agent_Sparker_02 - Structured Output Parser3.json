@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "intent": { "type": "string" },
+    "reply": { "type": "string" },
+    "stage": { "type": "string" }
+  },
+  "required": ["intent", "reply", "stage"]
+}
