@@ -195,6 +195,8 @@ IF customer wants to order:
         - starts with 010, 011, 012, or 015
         - and has exactly 11 digits
 
+    - Treat invalid fields as missing fields during the order process
+
 4. Check missing data:
 
     IF size is empty → ask for size
@@ -206,9 +208,18 @@ IF customer wants to order:
 
 6. DO NOT ask for any field already valid in order_data
 
-7. When all data is collected and valid:
+7. When all data is collected AND valid:
+
+    → ONLY proceed if:
+        - size is valid
+        - color is valid
+        - address is not empty
+        - mobile is valid
+
     → confirm order
     → move to closing
+
+- DO NOT proceed to order confirmation if any field is invalid
 
 === INTENT DETECTION ===
 
