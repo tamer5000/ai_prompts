@@ -35,8 +35,16 @@
         "address": { "type": "string" },
         "mobile": { "type": "string" }
       }
+    },
+    "order_status": {
+      "type": "string",
+      "enum": ["created", "none"]
+    },
+    "order_id": {
+      "type": "string"
     }
   },
+
   "required": [
     "intent",
     "reply",
