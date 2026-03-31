@@ -1,9 +1,26 @@
 {
   "type": "object",
   "properties": {
-    "intent": { "type": "string" },
+    "intent": {
+      "type": "string",
+      "enum": [
+        "greeting",
+        "asking_price",
+        "asking_sizes",
+        "asking_colors",
+        "asking_shipping",
+        "asking_photos",
+        "interested",
+        "objection",
+        "ordering",
+        "unknown"
+      ]
+    },
     "reply": { "type": "string" },
-    "stage": { "type": "string" },
+    "stage": {
+      "type": "string",
+      "enum": ["new", "interested", "ordering"]
+    },
     "send_images": { "type": "boolean" },
     "image_urls": {
       "type": "array",
@@ -14,10 +31,10 @@
       "properties": {
         "size": { "type": "string" },
         "color": { "type": "string" },
+        "customer_name": { "type": "string" },
         "address": { "type": "string" },
         "mobile": { "type": "string" }
-      },
-      "required": ["size", "color", "address", "mobile"]
+      }
     }
   },
   "required": [
