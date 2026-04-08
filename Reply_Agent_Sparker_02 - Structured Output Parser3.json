@@ -4,42 +4,116 @@
     "intent": {
       "type": "string",
       "enum": [
-        "greeting",
-        "asking_price",
-        "asking_sizes",
-        "asking_colors",
-        "asking_shipping",
-        "asking_photos",
-        "interested",
-        "objection",
+        "browsing",
         "ordering",
-        "unknown"
+        "updating",
+        "confirmation",
+        "objection",
+        "question"
       ]
     },
-    "reply": { "type": "string" },
+
+    "reply": {
+      "type": "string"
+    },
+
     "stage": {
       "type": "string",
-      "enum": ["new", "interested", "ordering"]
+      "enum": [
+        "browsing",
+        "selecting_product",
+        "selecting_size",
+        "selecting_color",
+        "collecting_customer_info",
+        "order_review",
+        "order_complete",
+        "order_updated"
+      ]
     },
-    "send_images": { "type": "boolean" },
+
+    "send_images": {
+      "type": "boolean"
+    },
+
     "image_urls": {
       "type": "array",
-      "items": { "type": "string" }
+      "maxItems": 1,
+      "items": {
+        "type": "string"
+      }
     },
+
     "order_data": {
       "type": "object",
       "properties": {
-        "size": { "type": "string" },
-        "color": { "type": "string" },
-        "customer_name": { "type": "string" },
-        "address": { "type": "string" },
-        "mobile": { "type": "string" }
+        "customer_name": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        },
+        "mobile": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "customer_name",
+        "address",
+        "mobile"
+      ]
+    },
+
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_code": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "minimum": 1
+          },
+          "price": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "product_code",
+          "product_name",
+          "size",
+          "color",
+          "quantity",
+          "price"
+        ]
       }
     },
+
+    "order_total": {
+      "type": "number"
+    },
+
     "order_status": {
       "type": "string",
-      "enum": ["created", "none"]
+      "enum": [
+        "draft",
+        "created",
+        "updating",
+        "updated"
+      ]
     },
+
     "order_id": {
       "type": "string"
     }
@@ -51,6 +125,10 @@
     "stage",
     "send_images",
     "image_urls",
-    "order_data"
+    "order_data",
+    "items",
+    "order_total",
+    "order_status",
+    "order_id"
   ]
 }
