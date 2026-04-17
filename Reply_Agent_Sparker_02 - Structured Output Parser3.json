@@ -110,12 +110,50 @@
         "draft",
         "created",
         "updating",
-        "updated"
+        "updated",
+        "confirmed"
       ]
     },
 
     "order_id": {
       "type": "string"
+    },
+
+    "trigger_webhook": {
+      "type": "boolean"
+    },
+
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "",
+        "order_created",
+        "order_modify_request"
+      ]
+    },
+
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "",
+            "modify_request"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "required",
+        "type",
+        "reason"
+      ]
     }
   },
 
@@ -129,6 +167,9 @@
     "items",
     "order_total",
     "order_status",
-    "order_id"
+    "order_id",
+    "trigger_webhook",
+    "event_type",
+    "escalation"
   ]
 }

@@ -1,0 +1,219 @@
+{
+    "name": "AI Sales Agent V2 (Agent + Tools)",
+    "nodes": [
+      {
+        "parameters": {
+          "path": "webhook/agent",
+          "httpMethod": "POST",
+          "responseMode": "lastNode"
+        },
+        "id": "webhook",
+        "name": "Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 1,
+        "position": [200, 300]
+      },
+      {
+        "parameters": {
+          "functionCode": "return [{\n  state: {\n    mode: \"ordering\",\n    sub_state: \"collect_items\",\n    active_order_id: null,\n    retry_count: 0\n  },\n  user_id: $json.body.user_id,\n  message: $json.body.message\n}];"
+        },
+        "id": "load_context",
+        "name": "Load Context",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [400, 300]
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o-mini",
+          "options": {
+            "temperature": 0
+          },
+          "systemMessage": "You are an AI Sales Agent. Follow FSM strictly. Use tools when needed. Never output plain text. Always use tools or structured response.",
+          "tools": [
+            {
+              "name": "create_order",
+              "description": "Create new order",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "user_id": { "type": "string" }
+                },
+                "required": ["user_id"]
+              }
+            },
+            {
+              "name": "add_item",
+              "description": "Add item to order",
+              "parameters": {
+                "type": "object",
+                "properties": {
+                  "order_id": { "type": "string" },
+                  "product": { "type": "string" },
+                  "quantity": { "type": "number" }
+                },
+                "required": ["product", "quantity"]
+              }
+            },
+            {
+              "name": "ask_address",
+              "description": "Ask for address"
+            },
+            {
+              "name": "confirm_order",
+              "description": "Confirm order"
+            },
+            {
+              "name": "escalate",
+              "description": "Escalate to human"
+            }
+          ],
+          "input": "User: {{$json.message}}\nState: {{$json.state.sub_state}}"
+        },
+        "id": "ai_agent",
+        "name": "AI Agent",
+        "type": "n8n-nodes-base.aiAgent",
+        "typeVersion": 1,
+        "position": [600, 300],
+        "credentials": {
+          "openAiApi": {
+            "id": "YOUR_API_KEY_ID"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "string": [
+              {
+                "value1": "={{$json.tool.name}}",
+                "operation": "equal",
+                "value2": "create_order"
+              },
+              {
+                "value1": "={{$json.tool.name}}",
+                "operation": "equal",
+                "value2": "add_item"
+              },
+              {
+                "value1": "={{$json.tool.name}}",
+                "operation": "equal",
+                "value2": "ask_address"
+              },
+              {
+                "value1": "={{$json.tool.name}}",
+                "operation": "equal",
+                "value2": "confirm_order"
+              },
+              {
+                "value1": "={{$json.tool.name}}",
+                "operation": "equal",
+                "value2": "escalate"
+              }
+            ]
+          }
+        },
+        "id": "router",
+        "name": "Tool Router",
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 1,
+        "position": [800, 300]
+      },
+      {
+        "parameters": {
+          "functionCode": "return [{ order_id: \"ORD_\" + Date.now(), message: \"تم إنشاء الطلب ✅\" }];"
+        },
+        "id": "create_order",
+        "name": "Create Order",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [1000, 100]
+      },
+      {
+        "parameters": {
+          "functionCode": "return [{ message: \"تم إضافة المنتج ✅\" }];"
+        },
+        "id": "add_item",
+        "name": "Add Item",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [1000, 200]
+      },
+      {
+        "parameters": {
+          "functionCode": "return [{ message: \"قولّي العنوان 📍\" }];"
+        },
+        "id": "ask_address",
+        "name": "Ask Address",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [1000, 300]
+      },
+      {
+        "parameters": {
+          "functionCode": "return [{ message: \"تم تأكيد الطلب 🎉\" }];"
+        },
+        "id": "confirm_order",
+        "name": "Confirm Order",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [1000, 400]
+      },
+      {
+        "parameters": {
+          "functionCode": "return [{ message: \"تم تحويلك لخدمة العملاء 👨‍💼\" }];"
+        },
+        "id": "escalate",
+        "name": "Escalate",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [1000, 500]
+      },
+      {
+        "parameters": {
+          "responseBody": "={{ { reply: $json.message } }}",
+          "responseCode": 200
+        },
+        "id": "response",
+        "name": "Send Response",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1,
+        "position": [1200, 300]
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [[{ "node": "Load Context", "type": "main", "index": 0 }]]
+      },
+      "Load Context": {
+        "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]]
+      },
+      "AI Agent": {
+        "main": [[{ "node": "Tool Router", "type": "main", "index": 0 }]]
+      },
+      "Tool Router": {
+        "main": [
+          [{ "node": "Create Order", "type": "main", "index": 0 }],
+          [{ "node": "Add Item", "type": "main", "index": 0 }],
+          [{ "node": "Ask Address", "type": "main", "index": 0 }],
+          [{ "node": "Confirm Order", "type": "main", "index": 0 }],
+          [{ "node": "Escalate", "type": "main", "index": 0 }]
+        ]
+      },
+      "Create Order": {
+        "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+      },
+      "Add Item": {
+        "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+      },
+      "Ask Address": {
+        "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+      },
+      "Confirm Order": {
+        "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+      },
+      "Escalate": {
+        "main": [[{ "node": "Send Response", "type": "main", "index": 0 }]]
+      }
+    }
+  }
