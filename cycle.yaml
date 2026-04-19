@@ -1,0 +1,36 @@
+cycle
+
+1. User message
+2. Webhook receives
+3. Load:
+   - state (Redis)
+   - history (DB)
+4. Send to AI
+5. AI returns:
+   - intent
+   - action
+6. FSM validates transition
+7. Execute via n8n
+8. Update:
+   - state
+   - history
+9. Send response
+
+
+State cycle
+
+greeting:start
+   ↓
+browsing:start
+   ↓
+browsing:continue
+   ↓
+qualification:collecting_data
+   ↓
+qualification:complete
+   ↓
+order:create
+   ↓
+order:review
+   ↓
+order:confirmed
