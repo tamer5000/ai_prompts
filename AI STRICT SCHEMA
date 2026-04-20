@@ -1,0 +1,164 @@
+AI OUTPUT REFERENCE (STRICT SCHEMA v1.0)
+
+==================================
+
+1. INTENTS (CLOSED SET)
+   ==================================
+
+browse
+filter
+select_product
+ask_details
+ask_price
+buy
+checkout
+provide_info
+fallback
+
+---
+
+RULES:
+
+* MUST choose ONE only
+* NO new intents allowed
+* NO custom values
+
+==================================
+2) STATES (CLOSED SET)
+======================
+
+start
+browsing
+filtering
+product_selected
+asking_details
+price_negotiation
+add_to_cart
+checkout
+address_collection
+fallback
+
+---
+
+RULES:
+
+* MUST choose ONE only
+* Derived from intent (deterministic)
+* NO new states allowed
+
+==================================
+3) INTENT → STATE MAPPING
+=========================
+
+browse → browsing
+filter → filtering
+select_product → product_selected
+ask_details → asking_details
+ask_price → price_negotiation
+buy → add_to_cart
+checkout → checkout
+provide_info → address_collection
+fallback → fallback
+
+==================================
+4) ENTITIES STRUCTURE
+=====================
+
+{
+"category": null,
+"color": null,
+"size": null,
+"price_range": null,
+"quantity": null,
+"reference": "none | implicit | positional | explicit"
+}
+
+---
+
+FIELD DEFINITIONS:
+
+category:
+
+* product type (pants, t-shirt, jeans, etc.)
+* MUST be extracted if explicitly mentioned
+
+color:
+
+* any mentioned color
+
+size:
+
+* numeric or letter size
+
+price_range:
+
+* if user mentions budget
+
+quantity:
+
+* ONLY if explicitly stated
+* NEVER inferred from position
+
+reference:
+
+* none → no reference
+* implicit → indirect reference (this, ده)
+* positional → order reference (first, التاني)
+* explicit → clearly identified product
+
+==================================
+5) CRITICAL RULES
+=================
+
+1. NO GUESSING
+
+* DO NOT infer missing data
+* DO NOT generate product_id
+
+2. POSITION ≠ QUANTITY
+
+* "التاني" → positional reference
+* NOT quantity = 2
+
+3. REFERENCE ≠ INTENT
+
+* reference is context only
+* intent is decision
+
+4. CATEGORY RULE
+
+* if product type is mentioned → MUST extract
+
+5. SINGLE INTENT ONLY
+
+* choose dominant action
+
+==================================
+6) CONFIDENCE RULE
+==================
+
+High → ≥ 0.9
+Medium → 0.7 - 0.89
+Low → ≤ 0.7 → use fallback
+
+==================================
+7) FINAL OUTPUT FORMAT
+======================
+
+{
+"intent": "",
+"state": "",
+"confidence": 0.0,
+"entities": {
+"category": null,
+"color": null,
+"size": null,
+"price_range": null,
+"quantity": null,
+"reference": "none"
+}
+}
+
+==================================
+END OF FILE
+===========

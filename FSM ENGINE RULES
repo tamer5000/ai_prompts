@@ -1,0 +1,257 @@
+FSM ENGINE RULES (STRICT v1.0)
+
+==================================
+PURPOSE
+=======
+
+Determine NEXT ACTION and NEXT STATE
+based on validated AI output.
+
+INPUT:
+
+* intent
+* state
+* entities
+
+OUTPUT:
+
+* next_state
+* action
+
+==================================
+
+1. CORE PRINCIPLE
+   ==================================
+
+* FSM does NOT understand language
+* FSM only reads structured data
+
+Decision = f(intent, state, entities)
+
+==================================
+2) ACTION TYPES
+===============
+
+show_products
+ask_preferences
+update_filters
+show_product
+answer_product_details
+answer_general_info
+send_price
+handle_negotiation
+confirm_add_to_cart
+ask_checkout
+start_checkout
+save_customer_info
+confirm_order
+clarify_request
+fallback_response
+
+==================================
+3) MAIN DECISION TABLE
+======================
+
+---
+
+## STATE: browsing
+
+intent = browse
+→ action: show_products
+→ next_state: browsing
+
+intent = filter
+→ action: ask_preferences
+→ next_state: filtering
+
+intent = select_product
+→ action: show_product
+→ next_state: product_selected
+
+else
+→ action: clarify_request
+→ next_state: browsing
+
+---
+
+## STATE: filtering
+
+intent = filter
+→ action: update_filters
+→ next_state: filtering
+
+intent = select_product
+→ action: show_product
+→ next_state: product_selected
+
+intent = ask_price
+→ action: ask_select_product_first
+→ next_state: filtering
+
+else
+→ action: clarify_request
+→ next_state: filtering
+
+---
+
+## STATE: product_selected
+
+intent = ask_details
+→ if reference != none:
+action: answer_product_details
+else:
+action: answer_general_info
+→ next_state: asking_details
+
+intent = ask_price
+→ action: send_price
+→ next_state: price_negotiation
+
+intent = buy
+→ action: confirm_add_to_cart
+→ next_state: add_to_cart
+
+intent = browse
+→ action: show_products
+→ next_state: browsing
+
+else
+→ action: clarify_request
+→ next_state: product_selected
+
+---
+
+## STATE: asking_details
+
+intent = ask_details
+→ same rule:
+reference != none → product
+reference = none → general
+→ next_state: asking_details
+
+intent = ask_price
+→ action: send_price
+→ next_state: price_negotiation
+
+intent = buy
+→ action: confirm_add_to_cart
+→ next_state: add_to_cart
+
+else
+→ action: clarify_request
+→ next_state: asking_details
+
+---
+
+## STATE: price_negotiation
+
+intent = ask_price
+→ action: send_price
+→ next_state: price_negotiation
+
+intent = buy
+→ action: confirm_add_to_cart
+→ next_state: add_to_cart
+
+else
+→ action: clarify_request
+→ next_state: price_negotiation
+
+---
+
+## STATE: add_to_cart
+
+intent = buy
+→ action: confirm_add_to_cart
+→ next_state: add_to_cart
+
+intent = checkout
+→ action: ask_checkout
+→ next_state: checkout
+
+else
+→ action: confirm_add_to_cart
+→ next_state: add_to_cart
+
+---
+
+## STATE: checkout
+
+intent = provide_info
+→ action: save_customer_info
+→ next_state: address_collection
+
+else
+→ action: ask_checkout
+→ next_state: checkout
+
+---
+
+## STATE: address_collection
+
+intent = provide_info
+→ action: confirm_order
+→ next_state: order_confirmed
+
+else
+→ action: ask_missing_info
+→ next_state: address_collection
+
+---
+
+## STATE: fallback
+
+any
+→ action: fallback_response
+→ next_state: browsing
+
+==================================
+4) GLOBAL RULES
+===============
+
+1. reference handling:
+
+reference != none
+→ user refers to a product
+
+reference = none
+→ general question
+
+---
+
+2. NO PRODUCT SELECTED CASE:
+
+If:
+
+* action requires product
+* BUT reference = none
+
+→ action: ask_which_product
+
+---
+
+3. MISSING DATA HANDLING:
+
+If required data missing:
+→ ask for missing field
+(e.g. size, color)
+
+---
+
+4. ALWAYS SAFE RESPONSE:
+
+If no rule matched:
+→ fallback_response
+
+==================================
+5) FINAL OUTPUT FORMAT
+======================
+
+{
+"next_state": "",
+"action": ""
+}
+
+==================================
+END OF FILE
+===========
